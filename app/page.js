@@ -2,7 +2,7 @@
 import Image from "next/image";
 import { useState, useEffect } from 'react';
 import { firestore } from "@/firebase";
-import { Box, Modal, Typography, Stack, TextField, Button } from "@mui/material";
+import { Box, Modal, Typography, Stack, TextField, Button, useMediaQuery, useTheme } from "@mui/material";
 import { collection, deleteDoc, getDocs, getDoc, query, doc, setDoc } from "firebase/firestore";
 
 const style = {
@@ -10,7 +10,8 @@ const style = {
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
-  width: 400,
+  width: '90vw', // Responsive width
+  maxWidth: 400,
   bgcolor: 'white',
   border: '2px solid #000',
   boxShadow: 24,
@@ -26,6 +27,9 @@ export default function Home() {
   const [open, setOpen] = useState(false);
   const [itemName, setItemName] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
 
   const updateInventory = async () => {
     const snapshot = query(collection(firestore, 'inventory'));
@@ -92,11 +96,10 @@ export default function Home() {
 
   return (
     <Box
-      sx={{ backgroundColor: '#ADD8E6' }}
+      sx={{ backgroundColor: '#ADD8E6', p: 2 }}
       width="100vw"
       height="100vh"
       display={'flex'}
-      justifyContent={'center'}
       flexDirection={'column'}
       alignItems={'center'}
       gap={2}
@@ -145,9 +148,11 @@ export default function Home() {
         sx={{
           boxShadow: '0 8px 16px rgba(0, 0, 0, 0.2)',  
           borderRadius: '8px',  
+          width: '100%', // Responsive width
+          maxWidth: 800,
         }}>
         <Box
-          width="800px"
+          width="100%"
           height="100px"
           bgcolor={'#ADD8E6'}
           display={'flex'}
@@ -159,7 +164,7 @@ export default function Home() {
           </Typography>
         </Box>
         <Box
-          width="800px"
+          width="100%"
           height="50px"
           bgcolor={'#FFB6C1'}
           display={'flex'}
@@ -171,7 +176,7 @@ export default function Home() {
             Items
           </Typography>
         </Box>
-        <Stack width="800px" height="300px" spacing={2} overflow={'auto'}>
+        <Stack width="100%" spacing={2} overflow={'auto'}>
           {filteredInventory.map(({ name, quantity }) => (
             <Box
               key={name}
@@ -181,15 +186,15 @@ export default function Home() {
               justifyContent={'space-between'}
               alignItems={'center'}
               bgcolor={'#f0f0f0'}
-              paddingX={5}
+              paddingX={2}
+              flexDirection={isSmallScreen ? 'column' : 'row'}
             >
               <Typography
                 variant={'h4'}
                 color={'#333'}
                 textAlign={'flex'}
                 flexGrow={1}
-                flexBasis="30%"
-                flexShrink={0}
+                flexBasis={isSmallScreen ? '100%' : '30%'}
               >
                 {name.charAt(0).toUpperCase() + name.slice(1)}
               </Typography>
@@ -198,38 +203,39 @@ export default function Home() {
                 color={'#333'}
                 textAlign={'flex'}
                 flexGrow={1}
-                flexBasis="30%"
-                flexShrink={0}
+                flexBasis={isSmallScreen ? '100%' : '30%'}
               >
                 Quantity {quantity}
               </Typography>
-              <Button
-                variant="contained"
-                style={{ marginRight: '8px' }}
-                onClick={() => addItem(name)}
-                sx={{
-                  background: 'linear-gradient(45deg, #FFB6C1 30%, #ADD8E6 90%)',
-                  color: '#fff',
-                  '&:hover': {
-                    boxShadow: '0 0 10px 2px rgba(173, 216, 230, 0.8)',
-                  },
-                }}
-              >
-                Add
-              </Button>
-              <Button
-                variant="contained"
-                onClick={() => removeItem(name)}
-                sx={{
-                  background: 'linear-gradient(45deg, #FFB6C1 30%, #ADD8E6 90%)',
-                  color: '#fff',
-                  '&:hover': {
-                    boxShadow: '0 0 10px 2px rgba(173, 216, 230, 0.8)',
-                  },
-                }}
-              >
-                Remove
-              </Button>
+              <Stack direction={isSmallScreen ? 'column' : 'row'} spacing={2}>
+                <Button
+                  variant="contained"
+                  style={{ marginRight: '8px' }}
+                  onClick={() => addItem(name)}
+                  sx={{
+                    background: 'linear-gradient(45deg, #FFB6C1 30%, #ADD8E6 90%)',
+                    color: '#fff',
+                    '&:hover': {
+                      boxShadow: '0 0 10px 2px rgba(173, 216, 230, 0.8)',
+                    },
+                  }}
+                >
+                  Add
+                </Button>
+                <Button
+                  variant="contained"
+                  onClick={() => removeItem(name)}
+                  sx={{
+                    background: 'linear-gradient(45deg, #FFB6C1 30%, #ADD8E6 90%)',
+                    color: '#fff',
+                    '&:hover': {
+                      boxShadow: '0 0 10px 2px rgba(173, 216, 230, 0.8)',
+                    },
+                  }}
+                >
+                  Remove
+                </Button>
+              </Stack>
             </Box>
           ))}
         </Stack>
@@ -255,7 +261,8 @@ export default function Home() {
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
         sx={{
-          width: '125px',
+          width: '100%', // Full width on small screens
+          maxWidth: 400, // Limit max width
           '& .MuiOutlinedInput-root': {
             '&.Mui-focused': {
               borderColor: '#FFB6C1',
